@@ -4,8 +4,8 @@
 var Promise = require('es6-promise').Promise;
 var remap   = require('obender').remap;
 
-var jquery = require('fs').readFileSync('./vendor/jquery.min.js', 'utf-8');
-var t2json = require('fs').readFileSync('./vendor/jquery.tabletojson.js', 'utf-8');
+var jquery = require('fs').readFileSync(__dirname + '/vendor/jquery.min.js', 'utf-8');
+var t2json = require('fs').readFileSync(__dirname + '/vendor/jquery.tabletojson.js', 'utf-8');
 
 /**
  * Tenzin, v0.0.0
