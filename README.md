@@ -4,7 +4,7 @@ Tenzin
 Academic calendar module for the RedAPI. Can be used to mine fresh info about Cornell's academic calendar.
 
 
-	var academic_calendar = require('Sokka');
+	var academic_calendar = require('Tenzin');
 	
 	// Calling a year will return the academic calendar starting with that year
 	// (In this case, 2014-15)
