@@ -1,8 +1,8 @@
-/* global require, console, module */
+/* global require, console, module,  __dirname */
 'use strict';	
 
-var Promise = require('es6-promise').Promise;
-var remap   = require('obender').remap;
+var remap	 = require('obender').remap;
+var jsdom	 = require('jsdom');
 
 var jquery = require('fs').readFileSync(__dirname + '/vendor/jquery.min.js', 'utf-8');
 var t2json = require('fs').readFileSync(__dirname + '/vendor/jquery.tabletojson.js', 'utf-8');
@@ -15,64 +15,66 @@ var t2json = require('fs').readFileSync(__dirname + '/vendor/jquery.tabletojson.
  */
 module.exports = (function () {
 
-	function AcademicCalSource(url) {
+	function AcademicCalSource() {
 		var self = this;
-		self.url = url;
+		self.url = 'http://www.cornell.edu/academics/calendar/';
 		self.data = null;
 	}
 
-	// http://www.cornell.edu/academics/calendar/2014-15.cfm
+	// http://www.cornell.edu/academics/calendar/?year=2014-15
 	AcademicCalSource.prototype.query = function(ayear) {
 		var self  = this;
-		var url   = self.url + ayear + '-' + (++ayear % 2000) + '.cfm';
+		var url   = self.url + '?year=' + ayear + '-' + (++ayear % 2000) + '.cfm';
 
-		var jsdom = require('jsdom');
+		return (new Promise(function (resolve, reject) {
+			console.log('gonna jsdom')
 
-		return new Promise(function (resolve, reject) {
-
-			jsdom.env({
+			var config = {
 				url : url,
-				src : [jquery, t2json],
-			    done: 
-			    function (err, window) {
-			    	var $ = window.jQuery;
+				src : [jquery, t2json]
+			}
 
-			    	if (err !== null) {
-			    		console.error(err);
-			    		reject(err);
-			    	}
-			    	
-			    	self.data = [];
+			config.done = function (err, window) {
 
-			    	$('table').each(function() {
-			    		var tmp = $(this).tableToJSON();
-			    		var term_title = $(this).find('caption').text();
+			  var $ = window.jQuery;
 
-			    		for (var i = tmp.length - 1; i >= 0; i--) {
-			    			remap(
-			    				{ 'Event'             : {'description'
-			    															: function (val) { return val.replace('¹²³⁴⁵⁶⁷⁸⁹⁰', '') }},
-			    				  'Day(s) of the Week': {'days_of_week'
-			    															: function (val) { return val.replace('¹²³⁴⁵⁶⁷⁸⁹⁰', '') }},
-			    				  'date'              : {'date'
-			    				  				    				: function (val) { return val.replace('¹²³⁴⁵⁶⁷⁸⁹⁰', '') }},
- 									}, tmp[i]);
-			    		}
+			  if (err !== null) reject(err);
+			  
+			  self.data = [];
 
-			    		var obj = {
-			    			term : term_title.trim(),
-			    			events : tmp
-			    		};
+			  console.log(url)
 
-			    		self.data.push(obj);
-			    	});
+			  $('table').each(function() {
+			  	var tmp = $(this).tableToJSON();
+			  	var term_title = $(this).find('caption').text();
 
-			    	resolve(self.data);
+			  	for (var i = tmp.length - 1; i >= 0; i--) {
+			  		remap(
+			  			{ 'Event'             : {'description'
+			  														: function (val) { return val.replace('¹²³⁴⁵⁶⁷⁸⁹⁰', ''); }},
+			  			  'Day(s) of the Week': {'days_of_week'
+			  														: function (val) { return val.replace('¹²³⁴⁵⁶⁷⁸⁹⁰', ''); }},
+			  			  'date'              : {'date'
+			  			  				    				: function (val) { return val.replace('¹²³⁴⁵⁶⁷⁸⁹⁰', ''); }},
+ 							}, tmp[i]);
 			  	}
-			});
-		});
-	};
 
+			  	var obj = {
+			  		term : term_title.trim(),
+			  		events : tmp
+			  	};
+
+			  	self.data.push(obj);
+			  });
+
+			  resolve(self.data);
+			};
+
+
+			jsdom.env(config);
+
+		}))
+	};
 
 	AcademicCalSource.prototype.clear = function() { this.data = null; };
 
@@ -80,6 +82,6 @@ module.exports = (function () {
 		return this.query(academic_year);
 	};
 
-	return new AcademicCalSource('http://www.cornell.edu/academics/calendar/');
+	return new AcademicCalSource();
 })();
 

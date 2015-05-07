@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "es6-promise": "^1.0.0",
-    "jsdom": "^0.11.1",
+    "jsdom": "^5.0.0",
     "obender": "0.0.1"
   },
   "devDependencies": {
