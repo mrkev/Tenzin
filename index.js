@@ -27,8 +27,6 @@ module.exports = (function () {
 		var url   = self.url + '?year=' + ayear + '-' + (++ayear % 2000) + '.cfm';
 
 		return (new Promise(function (resolve, reject) {
-			console.log('gonna jsdom')
-
 			var config = {
 				url : url,
 				src : [jquery, t2json]
@@ -41,8 +39,6 @@ module.exports = (function () {
 			  if (err !== null) reject(err);
 			  
 			  self.data = [];
-
-			  console.log(url)
 
 			  $('table').each(function() {
 			  	var tmp = $(this).tableToJSON();
