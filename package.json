@@ -1,6 +1,6 @@
 {
   "name": "Tenzin",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "The academic calendar module for RedAPI",
   "repository": "https://github.com/mrkev/Tenzin.git",
   "main": "index.js",
